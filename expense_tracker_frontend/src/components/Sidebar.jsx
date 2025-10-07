@@ -15,6 +15,7 @@ export default function Sidebar() {
       <NavLink to="/goals" className={activeClass}>🎯 Goals</NavLink>
       <NavLink to="/reports" className={activeClass}>📈 Reports</NavLink>
       <NavLink to="/settings" className={activeClass}>⚙️ Settings</NavLink>
+      <NavLink to="/profile" className={activeClass}>👤 Profile</NavLink>
     </div>
   );
 }
