@@ -1,13 +1,16 @@
 openapi: 3.0.3
 info:
   title: Smart Expense Tracker API
-  version: "0.1.0"
+  version: "1.0.0"
   description: |
-    REST API for transactions, budgets, goals, reports and health.
+    REST API for transactions, budgets, goals, reports, health, authentication, accounts, and profile.
 servers:
   - url: http://localhost:8080
 tags:
   - name: Health
+  - name: Auth
+  - name: Profile
+  - name: Accounts
   - name: Transactions
   - name: Budgets
   - name: Goals
@@ -29,10 +32,82 @@ paths:
                   status:
                     type: string
                     example: ok
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: User registration
+      description: Create a new user account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, name]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+                name: { type: string, minLength: 1 }
+      responses:
+        "201": { description: Registration successful }
+        "400": { description: Invalid input }
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: User login
+      description: Authenticate user and return JWT token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        "200": { description: Login successful, returns token and user }
+        "401": { description: Invalid credentials }
+  /profile:
+    get:
+      tags: [Profile]
+      summary: Get user profile
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: Profile data }
+        "401": { description: Unauthorized }
+    put:
+      tags: [Profile]
+      summary: Update user profile
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                notificationPreferences: { type: object }
+      responses:
+        "200": { description: Profile updated }
+        "400": { description: Invalid input }
+        "401": { description: Unauthorized }
+  /accounts:
+    get:
+      tags: [Accounts]
+      summary: Get linked bank accounts
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: List of accounts }
+        "401": { description: Unauthorized }
   /transactions:
     get:
       tags: [Transactions]
       summary: List transactions
+      security: [{ bearerAuth: [] }]
       parameters:
         - in: query
           name: limit
@@ -63,6 +138,7 @@ paths:
     post:
       tags: [Transactions]
       summary: Create transaction
+      security: [{ bearerAuth: [] }]
       requestBody:
         required: true
         content:
@@ -79,12 +155,12 @@ paths:
                 description: { type: string, nullable: true }
                 transaction_date: { type: string, format: date }
       responses:
-        "201":
-          description: Created
+        "201": { description: Created }
   /transactions/{id}:
     put:
       tags: [Transactions]
       summary: Update transaction
+      security: [{ bearerAuth: [] }]
       parameters:
         - in: path
           name: id
@@ -100,6 +176,7 @@ paths:
     delete:
       tags: [Transactions]
       summary: Delete transaction
+      security: [{ bearerAuth: [] }]
       parameters:
         - in: path
           name: id
@@ -111,6 +188,7 @@ paths:
     get:
       tags: [Transactions]
       summary: Summary by period
+      security: [{ bearerAuth: [] }]
       parameters:
         - in: query
           name: range
@@ -121,6 +199,7 @@ paths:
     get:
       tags: [Budgets]
       summary: List budgets with spent and overrun flag
+      security: [{ bearerAuth: [] }]
       responses:
         "200":
           description: Budgets list
@@ -133,6 +212,7 @@ paths:
     post:
       tags: [Budgets]
       summary: Create budget
+      security: [{ bearerAuth: [] }]
       description: Create a monthly budget for a category. Uniqueness is enforced per (user_id, category_id, month).
       requestBody:
         required: true
@@ -142,24 +222,11 @@ paths:
               type: object
               required: [user_id, category_id, month, limit_amount]
               properties:
-                user_id:
-                  type: string
-                  format: uuid
-                  description: User UUID who owns the budget
-                category_id:
-                  type: string
-                  format: uuid
-                  description: Category UUID (expense)
-                month:
-                  type: string
-                  description: Month as YYYY-MM or date (YYYY-MM-01). Will be normalized to first of month.
-                period:
-                  type: string
-                  enum: [monthly]
-                  description: Optional period enum; currently only 'monthly' is supported.
-                limit_amount:
-                  type: number
-                  description: Positive budget limit amount
+                user_id: { type: string, format: uuid, description: User UUID who owns the budget }
+                category_id: { type: string, format: uuid, description: Category UUID (expense) }
+                month: { type: string, description: Month as YYYY-MM or date (YYYY-MM-01). Will be normalized to first of month. }
+                period: { type: string, enum: [monthly], description: Optional period enum; currently only 'monthly' is supported. }
+                limit_amount: { type: number, description: Positive budget limit amount }
       responses:
         "201":
           description: Created budget
@@ -173,6 +240,7 @@ paths:
     put:
       tags: [Budgets]
       summary: Update budget
+      security: [{ bearerAuth: [] }]
       parameters:
         - in: path
           name: id
@@ -188,6 +256,7 @@ paths:
     delete:
       tags: [Budgets]
       summary: Delete budget
+      security: [{ bearerAuth: [] }]
       parameters:
         - in: path
           name: id
@@ -206,6 +275,7 @@ paths:
     get:
       tags: [Goals]
       summary: List goals
+      security: [{ bearerAuth: [] }]
       responses:
         "200":
           description: Goals list
@@ -218,6 +288,7 @@ paths:
     post:
       tags: [Goals]
       summary: Create goal
+      security: [{ bearerAuth: [] }]
       description: Create a savings goal with name, target amount, and optional target date/current amount.
       requestBody:
         required: true
@@ -227,25 +298,11 @@ paths:
               type: object
               required: [user_id, name, target_amount]
               properties:
-                user_id:
-                  type: string
-                  format: uuid
-                  description: Owner user UUID
-                name:
-                  type: string
-                  minLength: 1
-                  maxLength: 160
-                  description: Goal name
-                target_amount:
-                  type: number
-                  description: Positive target amount
-                current_amount:
-                  type: number
-                  description: Non-negative current progress amount (defaults to 0)
-                target_date:
-                  type: string
-                  format: date
-                  description: Optional target date (YYYY-MM-DD)
+                user_id: { type: string, format: uuid, description: Owner user UUID }
+                name: { type: string, minLength: 1, maxLength: 160, description: Goal name }
+                target_amount: { type: number, description: Positive target amount }
+                current_amount: { type: number, description: Non-negative current progress amount (defaults to 0) }
+                target_date: { type: string, format: date, description: Optional target date (YYYY-MM-DD) }
       responses:
         "201":
           description: Created goal
@@ -259,6 +316,7 @@ paths:
     put:
       tags: [Goals]
       summary: Update goal
+      security: [{ bearerAuth: [] }]
       parameters:
         - in: path
           name: id
@@ -274,6 +332,7 @@ paths:
     delete:
       tags: [Goals]
       summary: Delete goal
+      security: [{ bearerAuth: [] }]
       parameters:
         - in: path
           name: id
@@ -292,6 +351,7 @@ paths:
     get:
       tags: [Reports]
       summary: Spending by category for period
+      security: [{ bearerAuth: [] }]
       description: |
         Returns total outflows grouped by expense categories for a given period.
         - Default period is current month when no query is provided.
@@ -336,6 +396,7 @@ paths:
     get:
       tags: [Reports]
       summary: Income vs Expense by month for period
+      security: [{ bearerAuth: [] }]
       description: |
         Returns monthly totals for income vs expense for the selected period.
         - Default period is current month.
@@ -375,12 +436,14 @@ paths:
     get:
       tags: [Reports]
       summary: Alerts (stub)
+      security: [{ bearerAuth: [] }]
       responses:
         "200": { description: List of alerts (empty for now) }
   /categories:
     get:
       tags: [Categories]
       summary: List categories
+      security: [{ bearerAuth: [] }]
       description: |
         Returns categories ordered by name. Supports filtering by type and user_id, and optionally including global defaults.
       parameters:
@@ -412,3 +475,9 @@ paths:
                     type: { type: string, enum: [income, expense] }
                     icon: { type: string, nullable: true }
                     is_default: { type: boolean }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -2,71 +2,66 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-import healthRouter from './routes/health.js';
-import transactionsRouter from './routes/transactions.js';
-import budgetsRouter from './routes/budgets.js';
-import goalsRouter from './routes/goals.js';
-import reportsRouter from './routes/reports.js';
-import categoriesRouter from './routes/categories.js';
+import router from './routes/index.js';
 
 dotenv.config();
 
 const app = express();
 
-/**
- * CORS setup using env var.
- * Set CORS_ORIGIN in environment to the exact frontend origin.
- * Credentials are disabled per project instruction.
- */
+// CORS setup via env
 const corsOrigin = process.env.CORS_ORIGIN || '*';
 app.use(
   cors({
     origin: corsOrigin,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-    credentials: false
+    credentials: false,
   })
 );
 
-// JSON parser
+// JSON body parsing
 app.use(express.json());
 
 // Logging
 const logFormat = process.env.NODE_ENV === 'production' ? 'combined' : 'dev';
 app.use(morgan(logFormat));
 
-// Routes
-app.use('/health', healthRouter);
-app.use('/transactions', transactionsRouter);
-app.use('/budgets', budgetsRouter);
-app.use('/goals', goalsRouter);
-app.use('/reports', reportsRouter);
-app.use('/categories', categoriesRouter);
+// Derived paths in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-/**
- * Serve OpenAPI spec
- * GET /openapi.yaml -> returns the OpenAPI YAML spec file
- */
+// Serve OpenAPI if exists
 app.get('/openapi.yaml', (req, res) => {
-  res.type('text/yaml');
-  res.sendFile('openapi.yaml', { root: process.cwd() + '/smart-expense-tracker-4468-4477/expense_tracker_backend' });
+  const specPath = path.join(__dirname, '..', 'openapi.yaml');
+  if (fs.existsSync(specPath)) {
+    res.type('text/yaml');
+    res.sendFile(specPath);
+  } else {
+    res.status(404).json({ error: 'OpenAPI spec not found' });
+  }
 });
+
+// Mount central router
+app.use('/', router);
 
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-// Centralized error handler
 // PUBLIC_INTERFACE
 // error handler middleware
+// eslint-disable-next-line no-unused-vars
 app.use((err, _req, res, _next) => {
   const status = err.status || 500;
   const detail = process.env.NODE_ENV === 'production' ? undefined : err.stack;
   res.status(status).json({
     error: err.message || 'Internal Server Error',
-    detail
+    detail,
   });
 });
 
