@@ -58,6 +58,15 @@ export function getApi() {
         if (path.includes('/reports/alerts')) {
           return { data: [] };
         }
+        if (path.includes('/categories')) {
+          return {
+            data: [
+              { id: 'food', user_id: null, name: 'Food & Dining', type: 'expense', icon: '🍽️', is_default: true },
+              { id: 'groceries', user_id: null, name: 'Groceries', type: 'expense', icon: '🛒', is_default: true },
+              { id: 'transport', user_id: null, name: 'Transport', type: 'expense', icon: '🚌', is_default: true }
+            ]
+          };
+        }
         return { data: [] };
       },
       /** Mocked POST */

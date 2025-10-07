@@ -55,8 +55,15 @@ jest.unstable_mockModule('../src/db/pg.js', () => {
         return { rowCount: 1 };
       }
       // reports
-      if (sql.includes('FROM public.categories')) {
+      if (sql.includes('FROM public.categories c') && sql.includes('LEFT JOIN tx')) {
         return { rows: [{ categoryName: 'Food & Dining', total: 123.45, currency: 'USD' }] };
+      }
+      // categories list
+      if (sql.startsWith('\n      SELECT c.id, c.user_id, c.name, c.type, c.icon, c.is_default\n      FROM public.categories c')) {
+        return { rows: [
+          { id: 'c1', user_id: null, name: 'Food & Dining', type: 'expense', icon: '🍽️', is_default: true },
+          { id: 'c2', user_id: null, name: 'Groceries', type: 'expense', icon: '🛒', is_default: true }
+        ] };
       }
       if (sql.includes('GROUP BY 1') && sql.includes("to_char(date_trunc('month'"))) {
         return { rows: [
@@ -194,6 +201,12 @@ describe('Budgets and Goals endpoints responses', () => {
 
   it('GET /reports/alerts -> 200 []', async () => {
     const res = await request(app).get('/reports/alerts');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  it('GET /categories -> 200 array', async () => {
+    const res = await request(app).get('/categories');
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });

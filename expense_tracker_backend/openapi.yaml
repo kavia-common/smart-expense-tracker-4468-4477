@@ -12,6 +12,7 @@ tags:
   - name: Budgets
   - name: Goals
   - name: Reports
+  - name: Categories
 paths:
   /health:
     get:
@@ -304,3 +305,38 @@ paths:
       summary: Alerts (stub)
       responses:
         "200": { description: List of alerts (empty for now) }
+  /categories:
+    get:
+      tags: [Categories]
+      summary: List categories
+      description: |
+        Returns categories ordered by name. Supports filtering by type and user_id, and optionally including global defaults.
+      parameters:
+        - in: query
+          name: type
+          schema: { type: string, enum: [income, expense] }
+          description: Filter by category type.
+        - in: query
+          name: user_id
+          schema: { type: string, format: uuid }
+          description: User UUID to fetch user-specific categories.
+        - in: query
+          name: include_defaults
+          schema: { type: boolean }
+          description: When true and user_id provided, include global defaults too. Default true if user_id is provided.
+      responses:
+        "200":
+          description: Categories list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: string, format: uuid }
+                    user_id: { type: string, format: uuid, nullable: true }
+                    name: { type: string }
+                    type: { type: string, enum: [income, expense] }
+                    icon: { type: string, nullable: true }
+                    is_default: { type: boolean }

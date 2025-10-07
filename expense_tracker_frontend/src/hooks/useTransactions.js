@@ -12,18 +12,7 @@ export default function useTransactions() {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // simple local categories list for selection (would come from backend in full app)
-  const categories = useMemo(() => ([
-    { id: 'food', name: 'Food & Dining' },
-    { id: 'groceries', name: 'Groceries' },
-    { id: 'transport', name: 'Transport' },
-    { id: 'entertainment', name: 'Entertainment' },
-    { id: 'utilities', name: 'Utilities' },
-    { id: 'rent', name: 'Rent' },
-    { id: 'shopping', name: 'Shopping' },
-    { id: 'travel', name: 'Travel' },
-    { id: 'misc', name: 'Misc' },
-  ]), []);
+
 
   const fetchList = useCallback(async (signal) => {
     try {
@@ -90,5 +79,5 @@ export default function useTransactions() {
     }
   }, [api, data]);
 
-  return { data, loading, error, add, remove, categories, isSubmitting, isMock: api.isMock, baseURL: api.baseURL };
+  return { data, loading, error, add, remove, isSubmitting, isMock: api.isMock, baseURL: api.baseURL };
 }

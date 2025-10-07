@@ -8,6 +8,7 @@ import transactionsRouter from './routes/transactions.js';
 import budgetsRouter from './routes/budgets.js';
 import goalsRouter from './routes/goals.js';
 import reportsRouter from './routes/reports.js';
+import categoriesRouter from './routes/categories.js';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ app.use('/transactions', transactionsRouter);
 app.use('/budgets', budgetsRouter);
 app.use('/goals', goalsRouter);
 app.use('/reports', reportsRouter);
+app.use('/categories', categoriesRouter);
 
 /**
  * Serve OpenAPI spec
