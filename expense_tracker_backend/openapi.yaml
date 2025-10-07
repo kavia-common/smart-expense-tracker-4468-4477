@@ -221,14 +221,16 @@ paths:
       summary: Spending by category for period
       description: |
         Returns total outflows grouped by expense categories for a given period.
-        Default period is current month when no query is provided.
+        - Default period is current month when no query is provided.
+        - If `from`/`to` are provided (YYYY-MM-DD), they override `range`.
+        - `range=quarter` or `range=3months` will include the current month and previous 2 months.
       parameters:
         - in: query
           name: range
           description: Period preset. If from/to are provided, they override range.
           schema:
             type: string
-            enum: [month, quarter]
+            enum: [month, quarter, 3months]
             default: month
         - in: query
           name: from
@@ -255,7 +257,7 @@ paths:
                   type: object
                   properties:
                     categoryName: { type: string, example: "Food & Dining" }
-                    total: { type: number, example: 245.75 }
+                    total: { type: number, example: 245.75, description: "Positive sum of outflows for the category in the period" }
                     currency: { type: string, example: "USD" }
   /reports/income-vs-expense:
     get:
@@ -263,14 +265,16 @@ paths:
       summary: Income vs Expense by month for period
       description: |
         Returns monthly totals for income vs expense for the selected period.
-        Default period is current month. For quarter, last 3 months rolling.
+        - Default period is current month.
+        - For `range=quarter` or `range=3months`, the result aggregates the current month plus previous 2 months.
+        - If `from`/`to` are provided, they override `range` and the output includes each month within the bounds.
       parameters:
         - in: query
           name: range
           description: Period preset. If from/to are provided, they override range.
           schema:
             type: string
-            enum: [month, quarter]
+            enum: [month, quarter, 3months]
             default: month
         - in: query
           name: from
@@ -292,8 +296,8 @@ paths:
                   properties:
                     period: { type: string, example: "2025-03" }
                     income: { type: number, example: 5500.00 }
-                    expense: { type: number, example: 3240.25 }
-                    net: { type: number, example: 2259.75 }
+                    expense: { type: number, example: 3240.25, description: "Positive totals of outflows" }
+                    net: { type: number, example: 2259.75, description: "income - expense" }
   /reports/alerts:
     get:
       tags: [Reports]

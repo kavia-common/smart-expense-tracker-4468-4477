@@ -154,6 +154,17 @@ describe('Budgets and Goals endpoints responses', () => {
     expect(res.statusCode).toBe(200);
   });
 
+  it('GET /reports/spending-by-category with 3months alias -> 200', async () => {
+    const res = await request(app).get('/reports/spending-by-category?range=3months');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+  });
+
+  it('GET /reports/spending-by-category with custom from/to -> 200', async () => {
+    const res = await request(app).get('/reports/spending-by-category?from=2025-01-01&to=2025-02-01');
+    expect(res.statusCode).toBe(200);
+  });
+
   it('GET /reports/spending-by-category invalid range -> 400', async () => {
     const res = await request(app).get('/reports/spending-by-category?range=year');
     expect(res.statusCode).toBe(400);

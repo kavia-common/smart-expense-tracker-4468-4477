@@ -47,6 +47,7 @@ export function buildTransactionFilters({ accountId, from, to, category }) {
 // PUBLIC_INTERFACE
 /**
  * buildReportPagination - lightweight helper mirrored from buildPagination but accepting primitives
+ * Ensures reasonable bounds and positive limit.
  */
 export function buildReportPagination(limit, offset) {
   const l = Math.max(1, Math.min(Number(limit) || 50, 200));
