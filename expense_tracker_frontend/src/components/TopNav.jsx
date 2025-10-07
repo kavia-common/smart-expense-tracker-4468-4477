@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 export default function TopNav() {
   const navigate = useNavigate();
   return (
-    <div style={{ display: 'flex', gap: 8 }}>
+    <div className="gap-2" style={{ display: 'flex' }}>
       <button className="btn" onClick={() => navigate('/transactions')}>➕ Add Expense</button>
       <button className="btn btn-secondary" onClick={() => navigate('/reports')}>View Reports</button>
     </div>

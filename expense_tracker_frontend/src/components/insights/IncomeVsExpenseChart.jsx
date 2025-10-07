@@ -65,10 +65,12 @@ export default function IncomeVsExpenseChart({ data = [], loading = false, error
 
   return (
     <div className="card" style={{ minHeight: 320, display: 'grid', gridTemplateRows: 'auto 1fr' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-        <h3 style={{ margin: 0 }}>Income vs Expense (3 months)</h3>
-        {loading && <span className="helper">Loading...</span>}
-        {!loading && error && <button className="btn btn-secondary" onClick={onRetry}>Retry</button>}
+      <div className="section-header">
+        <h3 className="m-0">Income vs Expense (3 months)</h3>
+        <div>
+          {loading && <span className="helper">Loading...</span>}
+          {!loading && error && <button className="btn btn-secondary" onClick={onRetry}>Retry</button>}
+        </div>
       </div>
       {loading && <div className="skeleton" style={{ height: 12, width: '60%' }} />}
       {!loading && error && <div className="helper" style={{ color: 'var(--color-error)' }}>{error}</div>}

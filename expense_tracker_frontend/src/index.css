@@ -13,14 +13,25 @@
   --shadow-md: 0 6px 18px rgba(2,6,23,0.08);
   --shadow-lg: 0 14px 36px rgba(2,6,23,0.12);
 
-  /* Spacing scale */
+  /* Spacing scale (standardized 4/8 base, focus 16/24 as defaults) */
+  --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
-  --space-4: 16px;
+  --space-4: 16px;   /* default compact */
   --space-5: 20px;
-  --space-6: 24px;
+  --space-6: 24px;   /* default comfortable */
+  --space-7: 28px;
   --space-8: 32px;
   --space-10: 40px;
+  --space-12: 48px;
+
+  /* Layout gutters */
+  --gutter-16: var(--space-4);
+  --gutter-24: var(--space-6);
+
+  /* Card internal spacing */
+  --card-padding: var(--space-6);
+  --card-gap: var(--space-4);
 }
 
 *,
@@ -68,7 +79,8 @@ a { color: inherit; text-decoration: none; }
   background: var(--color-surface);
   border-radius: var(--radius);
   box-shadow: var(--shadow-md);
-  padding: var(--space-6);
+  padding: var(--card-padding);
+  display: block;
 }
 
 .layout {
@@ -79,6 +91,7 @@ a { color: inherit; text-decoration: none; }
     "sidebar topnav"
     "sidebar main";
   height: 100vh;
+  column-gap: var(--gutter-16);
 }
 
 .sidebar { grid-area: sidebar; background: #0f172a; color: #e2e8f0; }
@@ -87,7 +100,7 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(180deg, rgba(37,99,235,0.06), rgba(255,255,255,0)) , var(--color-surface); 
   box-shadow: var(--shadow-sm); 
 }
-.main { grid-area: main; padding: var(--space-6); overflow: auto; }
+.main { grid-area: main; padding: var(--gutter-24); overflow: auto; }
 
 .nav-link {
   display: flex;
@@ -104,7 +117,7 @@ a { color: inherit; text-decoration: none; }
 
 .list {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .helper {
@@ -162,11 +175,11 @@ a { color: inherit; text-decoration: none; }
   grid-template-rows: auto 1fr auto;
 }
 .modal-header {
-  padding: var(--space-5) var(--space-6) var(--space-3);
+  padding: var(--space-6) var(--space-6) var(--space-4);
   border-bottom: 1px solid #eef2f7;
 }
 .modal-body {
-  padding: var(--space-5) var(--space-6);
+  padding: var(--space-6);
   display: grid;
   gap: var(--space-4);
 }
@@ -181,6 +194,36 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   gap: var(--space-2);
 }
+
+/* Spacing utilities */
+.p-4 { padding: var(--space-4); }
+.p-6 { padding: var(--space-6); }
+.px-4 { padding-left: var(--space-4); padding-right: var(--space-4); }
+.px-6 { padding-left: var(--space-6); padding-right: var(--space-6); }
+.py-4 { padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.py-6 { padding-top: var(--space-6); padding-bottom: var(--space-6); }
+
+.m-0 { margin: 0; }
+.mt-2 { margin-top: var(--space-2); }
+.mt-4 { margin-top: var(--space-4); }
+.mt-6 { margin-top: var(--space-6); }
+.mb-2 { margin-bottom: var(--space-2); }
+.mb-4 { margin-bottom: var(--space-4); }
+.mb-6 { margin-bottom: var(--space-6); }
+
+.gap-2 { gap: var(--space-2); }
+.gap-3 { gap: var(--space-3); }
+.gap-4 { gap: var(--space-4); }
+.gap-6 { gap: var(--space-6); }
+
+/* Section utilities for consistent header/body spacing */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-4);
+}
+.section { display: grid; gap: var(--space-4); }
 .form-row label {
   font-size: 12px;
   color: #6b7280;
@@ -193,6 +236,9 @@ a { color: inherit; text-decoration: none; }
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--space-4);
+}
+@media (max-width: 600px) {
+  .field-inline { grid-template-columns: 1fr; }
 }
 
 @keyframes shimmer {

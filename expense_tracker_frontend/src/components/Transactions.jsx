@@ -71,7 +71,7 @@ export default function Transactions() {
     <div>
       <div className="page-header">
         <h2>Transactions</h2>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className="gap-2" style={{ display: 'flex' }}>
           <button className="btn" onClick={() => setIsOpen(true)}>➕ Add Expense</button>
         </div>
       </div>
@@ -82,8 +82,14 @@ export default function Transactions() {
         {!loading && !error && (
           <div className="list">
             {data.map(tx => (
-              <div key={tx.id} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', alignItems: 'center', gap: 8 }}>
-                <span className="helper">{(tx.transaction_date || tx.date)} • {tx.category_name || tx.category || (tx.category_id ? 'Categorized' : 'Uncategorized')}</span>
+              <div
+                key={tx.id}
+                className="gap-2"
+                style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', alignItems: 'center' }}
+              >
+                <span className="helper">
+                  {(tx.transaction_date || tx.date)} • {tx.category_name || tx.category || (tx.category_id ? 'Categorized' : 'Uncategorized')}
+                </span>
                 <strong>${Number(tx.amount).toFixed ? Number(tx.amount).toFixed(2) : tx.amount}</strong>
                 <button className="btn btn-secondary" onClick={() => remove(tx.id)} aria-label={`Delete ${tx.id}`}>🗑️</button>
               </div>

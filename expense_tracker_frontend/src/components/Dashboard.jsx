@@ -45,20 +45,28 @@ export default function Dashboard() {
         <h2>Dashboard</h2>
       </div>
       <div className="page-grid">
-        <section className="card span-12" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <strong>Health</strong>
-          {health.loading ? (
-            <span className="helper">Checking API...</span>
-          ) : (
-            <span className="badge" style={{ background: health.status === 'ok' ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)', color: health.status === 'ok' ? '#16a34a' : '#ef4444' }}>
-              API: {health.status}
-            </span>
-          )}
-          {api.isMock && <span className="helper">Using mock data (set REACT_APP_API_URL to connect)</span>}
+        <section className="card span-12 section-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-4)' }}>
+            <strong>Health</strong>
+            {health.loading ? (
+              <span className="helper">Checking API...</span>
+            ) : (
+              <span
+                className="badge"
+                style={{
+                  background: health.status === 'ok' ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)',
+                  color: health.status === 'ok' ? '#16a34a' : '#ef4444'
+                }}
+              >
+                API: {health.status}
+              </span>
+            )}
+            {api.isMock && <span className="helper">Using mock data (set REACT_APP_API_URL to connect)</span>}
+          </div>
         </section>
 
-        <section className="card span-4">
-          <h3>Recent Transaction</h3>
+        <section className="card span-4 section">
+          <h3 className="m-0">Recent Transaction</h3>
           {txLoading && <div className="skeleton" style={{height: 16, width: '80%'}} />}
           {txError && <div className="helper" style={{ color: 'var(--color-error)' }}>Error loading transactions</div>}
           {!txLoading && !txError && transactions?.length ? (
@@ -66,8 +74,8 @@ export default function Dashboard() {
           ) : (!txLoading && <div className="helper">No transactions yet</div>)}
         </section>
 
-        <section className="card span-4">
-          <h3>Budget Status</h3>
+        <section className="card span-4 section">
+          <h3 className="m-0">Budget Status</h3>
           {bLoading && <div className="skeleton" style={{height: 16, width: '70%'}} />}
           {bError && <div className="helper" style={{ color: 'var(--color-error)' }}>Error loading budgets</div>}
           {!bLoading && !bError && budgets?.length ? (
@@ -83,8 +91,8 @@ export default function Dashboard() {
           ) : (!bLoading && <div className="helper">No budgets yet</div>)}
         </section>
 
-        <section className="card span-4">
-          <h3>Goal Progress</h3>
+        <section className="card span-4 section">
+          <h3 className="m-0">Goal Progress</h3>
           {gLoading && <div className="skeleton" style={{height: 16, width: '60%'}} />}
           {gError && <div className="helper" style={{ color: 'var(--color-error)' }}>Error loading goals</div>}
           {!gLoading && !gError && goals?.length ? (

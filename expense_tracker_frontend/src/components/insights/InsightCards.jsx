@@ -32,16 +32,16 @@ export default function InsightCards({ spendingByCategory = [], incomeVsExpense 
   }, [goals]);
 
   return (
-    <div className="page-grid" style={{ marginTop: 0 }}>
+    <div className="page-grid">
       <div className="card span-4" style={{ borderTop: '4px solid #2563EB' }}>
         <div className="helper">Net (current period)</div>
-        <div style={{ fontSize: 24, fontWeight: 800, marginTop: 4 }}>${currentNet.toLocaleString()}</div>
+        <div className="mt-2" style={{ fontSize: 24, fontWeight: 800 }}>${currentNet.toLocaleString()}</div>
         <div className="helper">Income - Expense</div>
       </div>
 
       <div className="card span-4" style={{ borderTop: '4px solid #F59E0B' }}>
         <div className="helper">Top Category</div>
-        <div style={{ fontSize: 18, fontWeight: 700, marginTop: 4 }}>
+        <div className="mt-2" style={{ fontSize: 18, fontWeight: 700 }}>
           {topCategory ? `${topCategory.categoryName}` : '—'}
         </div>
         <div className="helper">{topCategory ? `$${Number(topCategory.total).toFixed(2)}` : 'No spend yet'}</div>
@@ -49,7 +49,7 @@ export default function InsightCards({ spendingByCategory = [], incomeVsExpense 
 
       <div className="card span-4" style={{ borderTop: '4px solid #34D399' }}>
         <div className="helper">{savingsProgress.name}</div>
-        <div style={{ display: 'grid', gap: 6, marginTop: 6 }}>
+        <div className="mt-2" style={{ display: 'grid', gap: 'var(--space-2)' }}>
           <div style={{ height: 10, background: '#e5e7eb', borderRadius: 8, overflow: 'hidden' }}>
             <div style={{ width: `${savingsProgress.pct}%`, height: '100%', background: '#34D399' }} />
           </div>
@@ -58,9 +58,12 @@ export default function InsightCards({ spendingByCategory = [], incomeVsExpense 
       </div>
 
       {alerts?.length > 0 && (
-        <div className="card span-12" style={{ background: 'rgba(239,68,68,.06)', border: '1px solid rgba(239,68,68,.25)' }}>
+        <div
+          className="card span-12"
+          style={{ background: 'rgba(239,68,68,.06)', border: '1px solid rgba(239,68,68,.25)' }}
+        >
           <strong style={{ color: '#EF4444' }}>Budget Alerts</strong>
-          <div className="list" style={{ marginTop: 8 }}>
+          <div className="list mt-2">
             {alerts.slice(0, 3).map((a, idx) => (
               <div key={idx} className="helper" style={{ color: a.severity === 'error' ? '#EF4444' : '#F59E0B' }}>
                 • {a.message}

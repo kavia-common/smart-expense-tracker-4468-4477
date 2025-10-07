@@ -36,10 +36,10 @@ function App() {
 
         <header className="topnav">
           <div className="topnav-inner">
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div className="gap-2" style={{ display: 'flex' }}>
               <span className="badge">Secure</span>
             </div>
-            <div style={{ display: 'flex', gap: 8 }}>
+            <div className="gap-2" style={{ display: 'flex' }}>
               <button className="btn btn-secondary" onClick={toggleTheme} aria-label="Toggle theme">
                 {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
               </button>
