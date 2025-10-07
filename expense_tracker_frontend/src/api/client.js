@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = process.env.REACT_APP_API_URL || '';
+const BASE_URL = (process.env.REACT_APP_API_URL || '').trim();
 const USE_MOCK = !BASE_URL;
 
 // Create axios instance only if we have a BASE_URL

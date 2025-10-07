@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import useTransactions from '../hooks/useTransactions';
 import useBudgets from '../hooks/useBudgets';
 import useGoals from '../hooks/useGoals';
+import { getApi } from '../api/client';
 
 /**
  * PUBLIC_INTERFACE
@@ -12,12 +13,42 @@ export default function Dashboard() {
   const { data: budgets, loading: bLoading, error: bError } = useBudgets();
   const { data: goals, loading: gLoading, error: gError } = useGoals();
 
+  // Simple health status check
+  const api = useMemo(() => getApi(), []);
+  const [health, setHealth] = useState({ loading: true, status: 'unknown', error: '' });
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        setHealth((h) => ({ ...h, loading: true, error: '' }));
+        const res = await api.get('/health');
+        if (!cancelled) {
+          setHealth({ loading: false, status: res?.data?.status === 'ok' ? 'ok' : 'error', error: '' });
+        }
+      } catch (_e) {
+        if (!cancelled) setHealth({ loading: false, status: 'error', error: 'Failed to reach API' });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [api]);
+
   return (
     <div>
       <div className="page-header">
         <h2>Dashboard</h2>
       </div>
       <div className="page-grid">
+        <section className="card span-12" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <strong>Health</strong>
+          {health.loading ? (
+            <span className="helper">Checking API...</span>
+          ) : (
+            <span className="badge" style={{ background: health.status === 'ok' ? 'rgba(34,197,94,.12)' : 'rgba(239,68,68,.12)', color: health.status === 'ok' ? '#16a34a' : '#ef4444' }}>
+              API: {health.status}
+            </span>
+          )}
+          {api.isMock && <span className="helper">Using mock data (set REACT_APP_API_URL to connect)</span>}
+        </section>
         <section className="card span-4">
           <h3>Recent Transaction</h3>
           {txLoading && <div className="skeleton" style={{height: 16, width: '80%'}} />}

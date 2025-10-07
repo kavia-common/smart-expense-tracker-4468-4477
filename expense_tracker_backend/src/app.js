@@ -13,19 +13,18 @@ dotenv.config();
 
 const app = express();
 
-// CORS setup using env var
+/**
+ * CORS setup using env var.
+ * Set CORS_ORIGIN in environment to the exact frontend origin.
+ * Credentials are disabled per project instruction.
+ */
 const corsOrigin = process.env.CORS_ORIGIN || '*';
 app.use(
   cors({
     origin: corsOrigin,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'Accept'
-    ],
-    credentials: true
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    credentials: false
   })
 );
 
@@ -43,7 +42,10 @@ app.use('/budgets', budgetsRouter);
 app.use('/goals', goalsRouter);
 app.use('/reports', reportsRouter);
 
-// OpenAPI spec static serve (simple)
+/**
+ * Serve OpenAPI spec
+ * GET /openapi.yaml -> returns the OpenAPI YAML spec file
+ */
 app.get('/openapi.yaml', (req, res) => {
   res.type('text/yaml');
   res.sendFile('openapi.yaml', { root: process.cwd() + '/smart-expense-tracker-4468-4477/expense_tracker_backend' });
