@@ -432,6 +432,17 @@ paths:
                     income: { type: number, example: 5500.00 }
                     expense: { type: number, example: 3240.25, description: "Positive totals of outflows" }
                     net: { type: number, example: 2259.75, description: "income - expense" }
+  /reports:
+    get:
+      tags: [Reports]
+      summary: Get financial reports overview
+      description: Returns a generic reports overview or metadata. Use specific report endpoints for detailed data.
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Financial report data.
+        "401":
+          description: Unauthorized.
   /reports/alerts:
     get:
       tags: [Reports]
