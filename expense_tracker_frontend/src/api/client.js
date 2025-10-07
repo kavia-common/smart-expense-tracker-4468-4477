@@ -24,31 +24,55 @@ export function getApi() {
     return {
       /** Mocked GET */
       async get(path) {
-        await delay(300);
-        if (path.includes('transactions')) {
-          return { data: [{ id: 't1', amount: 42.5, category: 'Food', date: '2024-09-12' }] };
+        await delay(150);
+        if (path.includes('/health')) {
+          return { data: { status: 'ok' } };
         }
-        if (path.includes('budgets')) {
-          return { data: [{ id: 'b1', category: 'Food', limit: 300, spent: 120 }] };
+        if (path.includes('/transactions')) {
+          return { data: [{ id: 't1', amount: 42.5, category: 'Food & Dining', date: '2025-03-12' }] };
         }
-        if (path.includes('goals')) {
-          return { data: [{ id: 'g1', name: 'Emergency Fund', target: 2000, progress: 650 }] };
+        if (path.includes('/budgets')) {
+          return { data: [{ id: 'b1', category: 'Food & Dining', limit: 350, spent: 320 }] };
+        }
+        if (path.includes('/goals')) {
+          return { data: [{ id: 'g1', name: 'Emergency Fund', target: 5000, progress: 1500 }] };
+        }
+        if (path.includes('/reports/spending-by-category')) {
+          return {
+            data: [
+              { categoryName: 'Food & Dining', total: 180.25, currency: 'USD' },
+              { categoryName: 'Groceries', total: 240.10, currency: 'USD' },
+              { categoryName: 'Transport', total: 65.80, currency: 'USD' }
+            ]
+          };
+        }
+        if (path.includes('/reports/income-vs-expense')) {
+          return {
+            data: [
+              { period: '2025-01', income: 5500, expense: 3200, net: 2300 },
+              { period: '2025-02', income: 5500, expense: 3100, net: 2400 },
+              { period: '2025-03', income: 5500, expense: 3450, net: 2050 }
+            ]
+          };
+        }
+        if (path.includes('/reports/alerts')) {
+          return { data: [] };
         }
         return { data: [] };
       },
       /** Mocked POST */
       async post(_path, body) {
-        await delay(200);
+        await delay(120);
         return { data: { ...body, id: Math.random().toString(36).slice(2) } };
       },
       /** Mocked PUT */
       async put(_path, body) {
-        await delay(200);
+        await delay(120);
         return { data: body };
       },
       /** Mocked DELETE */
       async delete(_path) {
-        await delay(200);
+        await delay(120);
         return { data: { ok: true } };
       },
       isMock: true,

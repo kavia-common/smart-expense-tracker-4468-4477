@@ -2,16 +2,23 @@ import React, { useEffect, useMemo, useState } from 'react';
 import useTransactions from '../hooks/useTransactions';
 import useBudgets from '../hooks/useBudgets';
 import useGoals from '../hooks/useGoals';
+import useReports from '../hooks/useReports';
+import useAlerts from '../hooks/useAlerts';
 import { getApi } from '../api/client';
+import SpendingByCategoryChart from './insights/SpendingByCategoryChart';
+import IncomeVsExpenseChart from './insights/IncomeVsExpenseChart';
+import InsightCards from './insights/InsightCards';
 
 /**
  * PUBLIC_INTERFACE
- * Dashboard - overview with summaries
+ * Dashboard - overview with summaries and insights charts
  */
 export default function Dashboard() {
   const { data: transactions, loading: txLoading, error: txError } = useTransactions();
   const { data: budgets, loading: bLoading, error: bError } = useBudgets();
   const { data: goals, loading: gLoading, error: gError } = useGoals();
+  const reports = useReports({ rangeSpending: 'month', rangeIncomeExpense: '3months' });
+  const alerts = useAlerts({ spendingByCategory: reports.spendingByCategory, budgets });
 
   // Simple health status check
   const api = useMemo(() => getApi(), []);
@@ -49,10 +56,11 @@ export default function Dashboard() {
           )}
           {api.isMock && <span className="helper">Using mock data (set REACT_APP_API_URL to connect)</span>}
         </section>
+
         <section className="card span-4">
           <h3>Recent Transaction</h3>
           {txLoading && <div className="skeleton" style={{height: 16, width: '80%'}} />}
-          {txError && <div className="helper">Error loading transactions</div>}
+          {txError && <div className="helper" style={{ color: 'var(--color-error)' }}>Error loading transactions</div>}
           {!txLoading && !txError && transactions?.length ? (
             <div className="helper">{transactions[0].category} • ${transactions[0].amount}</div>
           ) : (!txLoading && <div className="helper">No transactions yet</div>)}
@@ -61,24 +69,61 @@ export default function Dashboard() {
         <section className="card span-4">
           <h3>Budget Status</h3>
           {bLoading && <div className="skeleton" style={{height: 16, width: '70%'}} />}
-          {bError && <div className="helper">Error loading budgets</div>}
+          {bError && <div className="helper" style={{ color: 'var(--color-error)' }}>Error loading budgets</div>}
           {!bLoading && !bError && budgets?.length ? (
-            <div className="helper">{budgets[0].category} • {Math.round((budgets[0].spent/budgets[0].limit)*100)}% used</div>
+            <div className="helper">
+              {(() => {
+                const b = budgets[0];
+                const spent = Number(b.spent || 0);
+                const limit = Number(b.limit || b.limit_amount || 0);
+                const pct = limit > 0 ? Math.round((spent / limit) * 100) : 0;
+                return `${b.category || b.categoryName || 'Budget'} • ${pct}% used`;
+              })()}
+            </div>
           ) : (!bLoading && <div className="helper">No budgets yet</div>)}
         </section>
 
         <section className="card span-4">
           <h3>Goal Progress</h3>
           {gLoading && <div className="skeleton" style={{height: 16, width: '60%'}} />}
-          {gError && <div className="helper">Error loading goals</div>}
+          {gError && <div className="helper" style={{ color: 'var(--color-error)' }}>Error loading goals</div>}
           {!gLoading && !gError && goals?.length ? (
-            <div className="helper">{goals[0].name} • ${goals[0].progress}/${goals[0].target}</div>
+            <div className="helper">
+              {(() => {
+                const g = goals[0];
+                const name = g.name || 'Goal';
+                const target = Number(g.target || g.target_amount || 0);
+                const progress = Number(g.progress || g.current_amount || 0);
+                return `${name} • $${progress}/${target}`;
+              })()}
+            </div>
           ) : (!gLoading && <div className="helper">Set your first goal</div>)}
         </section>
 
-        <section className="card span-12">
-          <h3>Insights</h3>
-          <div className="helper">Insights will appear here once there is more data.</div>
+        {/* Insight cards */}
+        <section className="span-12">
+          <InsightCards
+            spendingByCategory={reports.spendingByCategory}
+            incomeVsExpense={reports.incomeVsExpense}
+            goals={goals}
+            alerts={alerts.alerts}
+          />
+        </section>
+
+        {/* Charts Grid */}
+        <section className="span-6">
+          <SpendingByCategoryChart
+            data={reports.spendingByCategory}
+            loading={reports.loading.spending}
+            error={reports.error.spending}
+          />
+        </section>
+        <section className="span-6">
+          <IncomeVsExpenseChart
+            data={reports.incomeVsExpense}
+            loading={reports.loading.trend}
+            error={reports.error.trend}
+          />
         </section>
       </div>
     </div>
