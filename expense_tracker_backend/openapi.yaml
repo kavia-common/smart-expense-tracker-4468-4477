@@ -207,10 +207,18 @@ paths:
       tags: [Goals]
       summary: List goals
       responses:
-        "200": { description: Goals list }
+        "200":
+          description: Goals list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
     post:
       tags: [Goals]
       summary: Create goal
+      description: Create a savings goal with name, target amount, and optional target date/current amount.
       requestBody:
         required: true
         content:
@@ -219,13 +227,34 @@ paths:
               type: object
               required: [user_id, name, target_amount]
               properties:
-                user_id: { type: string, format: uuid }
-                name: { type: string }
-                target_amount: { type: number }
-                current_amount: { type: number }
-                target_date: { type: string, format: date }
+                user_id:
+                  type: string
+                  format: uuid
+                  description: Owner user UUID
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 160
+                  description: Goal name
+                target_amount:
+                  type: number
+                  description: Positive target amount
+                current_amount:
+                  type: number
+                  description: Non-negative current progress amount (defaults to 0)
+                target_date:
+                  type: string
+                  format: date
+                  description: Optional target date (YYYY-MM-DD)
       responses:
-        "201": { description: Created }
+        "201":
+          description: Created goal
+          content:
+            application/json:
+              schema:
+                type: object
+        "400":
+          description: Invalid body
   /goals/{id}:
     put:
       tags: [Goals]
@@ -251,7 +280,14 @@ paths:
           required: true
           schema: { type: string, format: uuid }
       responses:
-        "200": { description: Deleted }
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: { type: integer }
   /reports/spending-by-category:
     get:
       tags: [Reports]

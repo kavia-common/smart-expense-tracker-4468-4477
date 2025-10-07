@@ -3,10 +3,14 @@ import { query } from '../db/pg.js';
 
 const createSchema = z.object({
   user_id: z.string().uuid(),
-  name: z.string().min(1).max(160),
-  target_amount: z.number().positive(),
+  name: z.string().min(1, 'name required').max(160),
+  target_amount: z.number().positive('target_amount must be > 0'),
   current_amount: z.number().nonnegative().default(0),
-  target_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional()
+  target_date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'target_date must be YYYY-MM-DD')
+    .nullable()
+    .optional()
 });
 const updateSchema = createSchema.partial();
 
@@ -24,15 +28,24 @@ export async function listGoals(_req, res, next) {
 export async function createGoal(req, res, next) {
   try {
     const body = createSchema.safeParse(req.body);
-    if (!body.success) return res.status(400).json({ error: 'Invalid body', details: body.error.flatten() });
+    if (!body.success)
+      return res.status(400).json({ error: 'Invalid body', details: body.error.flatten() });
 
-    const { user_id, name, target_amount, current_amount = 0, target_date = null } = body.data;
+    const {
+      user_id,
+      name,
+      target_amount,
+      current_amount = 0,
+      target_date = null
+    } = body.data;
     const sql = `
       INSERT INTO public.goals (user_id, name, target_amount, current_amount, target_date)
       VALUES ($1,$2,$3,$4,$5)
       RETURNING *`;
     const r = await query(sql, [user_id, name, target_amount, current_amount, target_date]);
-    res.status(201).json(r.rows[0]);
+    const created = r.rows[0];
+    // Return created entity directly for client optimistic reconciliation
+    res.status(201).json(created);
   } catch (e) {
     next(e);
   }
@@ -45,7 +58,8 @@ export async function updateGoal(req, res, next) {
     if (!id || !/^[0-9a-fA-F-]{36}$/.test(id)) return res.status(400).json({ error: 'Invalid id' });
 
     const body = updateSchema.safeParse(req.body);
-    if (!body.success) return res.status(400).json({ error: 'Invalid body', details: body.error.flatten() });
+    if (!body.success)
+      return res.status(400).json({ error: 'Invalid body', details: body.error.flatten() });
 
     const fields = [];
     const params = [];

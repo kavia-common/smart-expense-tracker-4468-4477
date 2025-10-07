@@ -168,6 +168,26 @@ describe('Budgets and Goals endpoints responses', () => {
     expect(res.statusCode).toBe(400);
   });
 
+  it('POST /goals valid -> 201 returns created', async () => {
+    const payload = {
+      user_id: '11111111-1111-1111-1111-111111111111',
+      name: 'New Goal',
+      target_amount: 1000,
+      current_amount: 100,
+      target_date: '2025-12-31'
+    };
+    const res = await request(app).post('/goals').send(payload);
+    expect([200,201]).toContain(res.statusCode);
+    expect(res.body).toHaveProperty('id');
+    expect(res.body).toHaveProperty('name', payload.name);
+  });
+
+  it('DELETE /goals/:id -> 200', async () => {
+    const res = await request(app).delete('/goals/00000000-0000-0000-0000-00000000g000'.replace('g','0'));
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('deleted');
+  });
+
   it('GET /reports/spending-by-category -> 200 and items', async () => {
     const res = await request(app).get('/reports/spending-by-category');
     expect(res.statusCode).toBe(200);
