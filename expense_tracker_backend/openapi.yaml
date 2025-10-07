@@ -122,10 +122,18 @@ paths:
       tags: [Budgets]
       summary: List budgets with spent and overrun flag
       responses:
-        "200": { description: Budgets list }
+        "200":
+          description: Budgets list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
     post:
       tags: [Budgets]
       summary: Create budget
+      description: Create a monthly budget for a category. Uniqueness is enforced per (user_id, category_id, month).
       requestBody:
         required: true
         content:
@@ -134,12 +142,33 @@ paths:
               type: object
               required: [user_id, category_id, month, limit_amount]
               properties:
-                user_id: { type: string, format: uuid }
-                category_id: { type: string, format: uuid }
-                month: { type: string, format: date }
-                limit_amount: { type: number }
+                user_id:
+                  type: string
+                  format: uuid
+                  description: User UUID who owns the budget
+                category_id:
+                  type: string
+                  format: uuid
+                  description: Category UUID (expense)
+                month:
+                  type: string
+                  description: Month as YYYY-MM or date (YYYY-MM-01). Will be normalized to first of month.
+                period:
+                  type: string
+                  enum: [monthly]
+                  description: Optional period enum; currently only 'monthly' is supported.
+                limit_amount:
+                  type: number
+                  description: Positive budget limit amount
       responses:
-        "201": { description: Created }
+        "201":
+          description: Created budget
+          content:
+            application/json:
+              schema:
+                type: object
+        "400": { description: Invalid body }
+        "409": { description: Conflict - budget already exists for this month and category }
   /budgets/{id}:
     put:
       tags: [Budgets]
@@ -165,7 +194,14 @@ paths:
           required: true
           schema: { type: string, format: uuid }
       responses:
-        "200": { description: Deleted }
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted: { type: integer }
   /goals:
     get:
       tags: [Goals]

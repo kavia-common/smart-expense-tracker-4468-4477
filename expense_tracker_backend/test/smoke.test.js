@@ -33,7 +33,7 @@ jest.unstable_mockModule('../src/db/pg.js', () => {
         return { rows: [{ id: 'b1', user_id: 'u', category_id: 'c', month: '2024-01-01', limit_amount: 100, spent: 0 }] };
       }
       if (sql.startsWith('INSERT INTO public.budgets')) {
-        return { rows: [{ id: 'b2', user_id: params[0], category_id: params[1], month: params[2], limit_amount: params[3] }] };
+        return { rows: [{ id: 'b2', user_id: params[0], category_id: params[1], month: params[2], limit_amount: params[3], spent: 0 }] };
       }
       if (sql.startsWith('UPDATE public.budgets')) {
         return { rows: [{ id: params.at(-1) }] };
@@ -138,6 +138,29 @@ describe('Budgets and Goals endpoints responses', () => {
     if (res.body[0]) {
       expect(typeof res.body[0].budget_overrun).toBe('boolean');
     }
+  });
+
+  it('POST /budgets invalid -> 400', async () => {
+    const res = await request(app).post('/budgets').send({ foo: 'bar' });
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('POST /budgets valid -> 201', async () => {
+    const payload = {
+      user_id: '11111111-1111-1111-1111-111111111111',
+      category_id: '22222222-2222-2222-2222-222222222222',
+      month: '2025-01',
+      limit_amount: 250
+    };
+    const res = await request(app).post('/budgets').send(payload);
+    expect([200,201]).toContain(res.statusCode); // in mock env, 201 expected
+    expect(res.body).toHaveProperty('user_id', payload.user_id);
+  });
+
+  it('DELETE /budgets/:id -> 200', async () => {
+    const res = await request(app).delete('/budgets/00000000-0000-0000-0000-0000000000ab');
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('deleted');
   });
 
   it('POST /goals invalid -> 400', async () => {
