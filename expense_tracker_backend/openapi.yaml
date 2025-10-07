@@ -1,0 +1,243 @@
+openapi: 3.0.3
+info:
+  title: Smart Expense Tracker API
+  version: "0.1.0"
+  description: |
+    REST API for transactions, budgets, goals, reports and health.
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: Health
+  - name: Transactions
+  - name: Budgets
+  - name: Goals
+  - name: Reports
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+  /transactions:
+    get:
+      tags: [Transactions]
+      summary: List transactions
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, maximum: 200 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+        - in: query
+          name: accountId
+          schema: { type: string, format: uuid }
+        - in: query
+          name: from
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          schema: { type: string, format: date }
+        - in: query
+          name: category
+          schema: { type: string, format: uuid }
+      responses:
+        "200":
+          description: Transactions list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { type: object }
+    post:
+      tags: [Transactions]
+      summary: Create transaction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, amount, direction, transaction_date]
+              properties:
+                user_id: { type: string, format: uuid }
+                account_id: { type: string, format: uuid, nullable: true }
+                category_id: { type: string, format: uuid, nullable: true }
+                amount: { type: number }
+                direction: { type: string, enum: [inflow, outflow] }
+                description: { type: string, nullable: true }
+                transaction_date: { type: string, format: date }
+      responses:
+        "201":
+          description: Created
+  /transactions/{id}:
+    put:
+      tags: [Transactions]
+      summary: Update transaction
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [Transactions]
+      summary: Delete transaction
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Deleted indicator }
+  /transactions/summary:
+    get:
+      tags: [Transactions]
+      summary: Summary by period
+      parameters:
+        - in: query
+          name: range
+          schema: { type: string, enum: [week, month, year], default: month }
+      responses:
+        "200": { description: Summary list }
+  /budgets:
+    get:
+      tags: [Budgets]
+      summary: List budgets with spent and overrun flag
+      responses:
+        "200": { description: Budgets list }
+    post:
+      tags: [Budgets]
+      summary: Create budget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, category_id, month, limit_amount]
+              properties:
+                user_id: { type: string, format: uuid }
+                category_id: { type: string, format: uuid }
+                month: { type: string, format: date }
+                limit_amount: { type: number }
+      responses:
+        "201": { description: Created }
+  /budgets/{id}:
+    put:
+      tags: [Budgets]
+      summary: Update budget
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [Budgets]
+      summary: Delete budget
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Deleted }
+  /goals:
+    get:
+      tags: [Goals]
+      summary: List goals
+      responses:
+        "200": { description: Goals list }
+    post:
+      tags: [Goals]
+      summary: Create goal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, name, target_amount]
+              properties:
+                user_id: { type: string, format: uuid }
+                name: { type: string }
+                target_amount: { type: number }
+                current_amount: { type: number }
+                target_date: { type: string, format: date }
+      responses:
+        "201": { description: Created }
+  /goals/{id}:
+    put:
+      tags: [Goals]
+      summary: Update goal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object }
+      responses:
+        "200": { description: Updated }
+    delete:
+      tags: [Goals]
+      summary: Delete goal
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "200": { description: Deleted }
+  /reports/spending-by-category:
+    get:
+      tags: [Reports]
+      summary: Spending by category for current period
+      parameters:
+        - in: query
+          name: range
+          schema: { type: string, enum: [week, month, year], default: month }
+      responses:
+        "200": { description: Report data }
+  /reports/income-vs-expense:
+    get:
+      tags: [Reports]
+      summary: Income vs Expense for current period
+      parameters:
+        - in: query
+          name: range
+          schema: { type: string, enum: [week, month, year], default: month }
+      responses:
+        "200": { description: Report data }
+  /reports/alerts:
+    get:
+      tags: [Reports]
+      summary: Alerts (stub)
+      responses:
+        "200": { description: List of alerts (empty for now) }
