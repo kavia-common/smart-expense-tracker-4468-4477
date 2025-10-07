@@ -1,0 +1,5 @@
+[
+  { "id": "goal_emergency", "goal": "Emergency Fund", "amount": 5000, "progress": 3200 },
+  { "id": "goal_vacation", "goal": "Vacation", "amount": 2000, "progress": 800 },
+  { "id": "goal_downpayment", "goal": "Home Down Payment", "amount": 15000, "progress": 2500 }
+]

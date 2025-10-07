@@ -1,0 +1,10 @@
+[
+  { "id": "cat_groceries", "name": "Groceries", "color": "#34D399" },
+  { "id": "cat_rent", "name": "Rent", "color": "#60A5FA" },
+  { "id": "cat_utilities", "name": "Utilities", "color": "#F59E0B" },
+  { "id": "cat_transport", "name": "Transport", "color": "#A78BFA" },
+  { "id": "cat_entertainment", "name": "Entertainment", "color": "#F472B6" },
+  { "id": "cat_dining", "name": "Dining", "color": "#F87171" },
+  { "id": "cat_salary", "name": "Salary", "color": "#10B981" },
+  { "id": "cat_misc", "name": "Miscellaneous", "color": "#9CA3AF" }
+]

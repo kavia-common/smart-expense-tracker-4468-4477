@@ -1,0 +1,29 @@
+[
+  {
+    "id": "acc_chk_001",
+    "name": "Checking",
+    "type": "checking",
+    "institution": "Blue Bank",
+    "last4": "1234",
+    "balance": 2450.75,
+    "currency": "USD"
+  },
+  {
+    "id": "acc_sav_001",
+    "name": "Savings",
+    "type": "savings",
+    "institution": "Blue Bank",
+    "last4": "9876",
+    "balance": 8200.00,
+    "currency": "USD"
+  },
+  {
+    "id": "acc_cc_001",
+    "name": "Credit Card",
+    "type": "credit",
+    "institution": "Amber Card",
+    "last4": "4321",
+    "balance": -350.22,
+    "currency": "USD"
+  }
+]

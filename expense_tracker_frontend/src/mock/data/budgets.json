@@ -1,0 +1,8 @@
+[
+  { "id": "bud_groceries", "categoryId": "cat_groceries", "amount": 450, "period": "monthly" },
+  { "id": "bud_utilities", "categoryId": "cat_utilities", "amount": 180, "period": "monthly" },
+  { "id": "bud_transport", "categoryId": "cat_transport", "amount": 120, "period": "monthly" },
+  { "id": "bud_entertainment", "categoryId": "cat_entertainment", "amount": 150, "period": "monthly" },
+  { "id": "bud_dining", "categoryId": "cat_dining", "amount": 220, "period": "monthly" },
+  { "id": "bud_misc", "categoryId": "cat_misc", "amount": 100, "period": "monthly" }
+]

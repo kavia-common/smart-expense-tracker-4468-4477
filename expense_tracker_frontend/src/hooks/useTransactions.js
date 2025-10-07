@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { apiGet } from '../api/client';
 
 /**
@@ -10,6 +10,11 @@ export default function useTransactions() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const useMock = useMemo(
+    () => String(process.env.REACT_APP_USE_MOCK || 'true').toLowerCase() === 'true',
+    []
+  );
+
   useEffect(() => {
     let abort = false;
     const controller = new AbortController();
@@ -17,8 +22,14 @@ export default function useTransactions() {
       setLoading(true);
       setError('');
       try {
-        const { data } = await apiGet('/transactions', { signal: controller.signal });
-        if (!abort && data) setTransactions(data);
+        if (useMock) {
+          const mockApi = await import('../mock/api');
+          const data = await mockApi.getTransactions();
+          if (!abort && data) setTransactions(data);
+        } else {
+          const { data } = await apiGet('/transactions', { signal: controller.signal });
+          if (!abort && data) setTransactions(data);
+        }
       } catch (e) {
         if (!abort) setError('Failed to load transactions.');
       } finally {
@@ -30,7 +41,7 @@ export default function useTransactions() {
       abort = true;
       controller.abort();
     };
-  }, []);
+  }, [useMock]);
 
   return { transactions, loading, error };
 }

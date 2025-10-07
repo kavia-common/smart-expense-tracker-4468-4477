@@ -1,0 +1,44 @@
+[
+  { "id": "tx_001", "date": "2025-07-02", "description": "Monthly Rent", "amount": -1200, "categoryId": "cat_rent", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_002", "date": "2025-07-03", "description": "Super Mart", "amount": -86.23, "categoryId": "cat_groceries", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_003", "date": "2025-07-05", "description": "Utility - Electricity", "amount": -72.15, "categoryId": "cat_utilities", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_004", "date": "2025-07-08", "description": "Gas Station", "amount": -42.7, "categoryId": "cat_transport", "accountId": "acc_cc_001", "type": "expense" },
+  { "id": "tx_005", "date": "2025-07-10", "description": "Movie Night", "amount": -28.5, "categoryId": "cat_entertainment", "accountId": "acc_cc_001", "type": "expense" },
+  { "id": "tx_006", "date": "2025-07-15", "description": "Dining - Bistro", "amount": -36.8, "categoryId": "cat_dining", "accountId": "acc_cc_001", "type": "expense" },
+  { "id": "tx_007", "date": "2025-07-28", "description": "Salary - July", "amount": 3200, "categoryId": "cat_salary", "accountId": "acc_chk_001", "type": "income" },
+
+  { "id": "tx_101", "date": "2025-06-02", "description": "Monthly Rent", "amount": -1200, "categoryId": "cat_rent", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_102", "date": "2025-06-04", "description": "Super Mart", "amount": -92.43, "categoryId": "cat_groceries", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_103", "date": "2025-06-09", "description": "Gas Station", "amount": -38.6, "categoryId": "cat_transport", "accountId": "acc_cc_001", "type": "expense" },
+  { "id": "tx_104", "date": "2025-06-12", "description": "Dining - Taco Place", "amount": -24.1, "categoryId": "cat_dining", "accountId": "acc_cc_001", "type": "expense" },
+  { "id": "tx_105", "date": "2025-06-15", "description": "Utility - Water", "amount": -45.32, "categoryId": "cat_utilities", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_106", "date": "2025-06-28", "description": "Salary - June", "amount": 3200, "categoryId": "cat_salary", "accountId": "acc_chk_001", "type": "income" },
+
+  { "id": "tx_201", "date": "2025-05-02", "description": "Monthly Rent", "amount": -1200, "categoryId": "cat_rent", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_202", "date": "2025-05-03", "description": "Super Mart", "amount": -79.54, "categoryId": "cat_groceries", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_203", "date": "2025-05-09", "description": "Utility - Internet", "amount": -60.00, "categoryId": "cat_utilities", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_204", "date": "2025-05-11", "description": "Concert Tickets", "amount": -110.00, "categoryId": "cat_entertainment", "accountId": "acc_cc_001", "type": "expense" },
+  { "id": "tx_205", "date": "2025-05-28", "description": "Salary - May", "amount": 3200, "categoryId": "cat_salary", "accountId": "acc_chk_001", "type": "income" },
+
+  { "id": "tx_301", "date": "2025-04-02", "description": "Monthly Rent", "amount": -1200, "categoryId": "cat_rent", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_302", "date": "2025-04-06", "description": "Super Mart", "amount": -95.12, "categoryId": "cat_groceries", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_303", "date": "2025-04-10", "description": "Utility - Gas", "amount": -48.3, "categoryId": "cat_utilities", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_304", "date": "2025-04-13", "description": "Dining - Pizza", "amount": -22.9, "categoryId": "cat_dining", "accountId": "acc_cc_001", "type": "expense" },
+  { "id": "tx_305", "date": "2025-04-28", "description": "Salary - April", "amount": 3200, "categoryId": "cat_salary", "accountId": "acc_chk_001", "type": "income" },
+
+  { "id": "tx_401", "date": "2025-03-02", "description": "Monthly Rent", "amount": -1200, "categoryId": "cat_rent", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_402", "date": "2025-03-05", "description": "Super Mart", "amount": -81.75, "categoryId": "cat_groceries", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_403", "date": "2025-03-08", "description": "Utility - Electricity", "amount": -71.25, "categoryId": "cat_utilities", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_404", "date": "2025-03-15", "description": "Dining - Sushi", "amount": -40.2, "categoryId": "cat_dining", "accountId": "acc_cc_001", "type": "expense" },
+  { "id": "tx_405", "date": "2025-03-28", "description": "Salary - March", "amount": 3200, "categoryId": "cat_salary", "accountId": "acc_chk_001", "type": "income" },
+
+  { "id": "tx_501", "date": "2025-02-02", "description": "Monthly Rent", "amount": -1200, "categoryId": "cat_rent", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_502", "date": "2025-02-04", "description": "Super Mart", "amount": -88.9, "categoryId": "cat_groceries", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_503", "date": "2025-02-09", "description": "Utility - Water", "amount": -43.8, "categoryId": "cat_utilities", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_504", "date": "2025-02-28", "description": "Salary - February", "amount": 3200, "categoryId": "cat_salary", "accountId": "acc_chk_001", "type": "income" },
+
+  { "id": "tx_601", "date": "2025-01-02", "description": "Monthly Rent", "amount": -1200, "categoryId": "cat_rent", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_602", "date": "2025-01-06", "description": "Super Mart", "amount": -90.11, "categoryId": "cat_groceries", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_603", "date": "2025-01-10", "description": "Utility - Internet", "amount": -60.00, "categoryId": "cat_utilities", "accountId": "acc_chk_001", "type": "expense" },
+  { "id": "tx_604", "date": "2025-01-28", "description": "Salary - January", "amount": 3200, "categoryId": "cat_salary", "accountId": "acc_chk_001", "type": "income" }
+]
