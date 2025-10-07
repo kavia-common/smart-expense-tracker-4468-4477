@@ -8,7 +8,7 @@
   color: white;
   border: 0;
   border-radius: 10px;
-  padding: 8px 12px;
+  padding: var(--space-2) var(--space-4);
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
@@ -21,21 +21,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 var(--space-5);
 }
 
 .sidebar-inner {
-  padding: 16px;
+  padding: var(--space-5);
   height: 100%;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  gap: 14px;
+  gap: var(--space-4);
 }
 
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   color: #fff;
   font-weight: 800;
   font-size: 18px;
@@ -43,7 +43,7 @@
 
 .sidebar-nav {
   display: grid;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .sidebar-footer {
@@ -55,16 +55,17 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: var(--space-6);
 }
 
 .page-grid {
   display: grid;
-  gap: 14px;
+  gap: var(--space-6);
   grid-template-columns: repeat(12, 1fr);
 }
 
 .page-grid .span-4 { grid-column: span 4; }
+.page-grid .span-6 { grid-column: span 6; }
 .page-grid .span-8 { grid-column: span 8; }
 .page-grid .span-12 { grid-column: span 12; }
 
@@ -73,6 +74,7 @@
   .sidebar { display: none; }
   .page-grid { grid-template-columns: 1fr; }
   .page-grid .span-4,
+  .page-grid .span-6,
   .page-grid .span-8,
   .page-grid .span-12 { grid-column: 1 / -1; }
 }
