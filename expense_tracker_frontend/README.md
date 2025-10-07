@@ -1,82 +1,59 @@
-# Lightweight React Template for KAVIA
+# Expense Tracker Frontend (React)
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+This frontend runs in two modes to streamline previews and development: a login-free mock mode with seeded data and a full API mode connected to the backend.
 
-## Features
+## Authentication Removed (Preview Friendly)
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+All routes are public in preview. The app runs without login and uses seeded mock data for accounts, transactions, budgets, goals, and reports. A health badge in the UI indicates whether you are in mock mode or connected to an API.
+
+## Mock Mode vs API Mode
+
+- Mock Mode (default): Set `REACT_APP_USE_MOCK=true` (or `1`). No backend is required; data is sourced from `src/mock/*`.
+- API Mode: Set `REACT_APP_USE_MOCK=false` (or `0`) and set `REACT_APP_API_URL` to point to the backend. The backend can require JWT auth if enabled; in that case, protected endpoints expect an Authorization header.
+
+The health badge shows:
+- “Mock mode” when mock is enabled or no API URL is set.
+- “API OK” if the API is reachable.
+- “API Down” if the API is not reachable.
+
+## Environment Variables
+
+Frontend (.env)
+- REACT_APP_USE_MOCK: Default true/1 if not set; toggles mock vs API mode.
+- REACT_APP_API_URL: Backend base URL (e.g., http://localhost:8080). Optional in mock mode.
+- REACT_APP_THEME: Optional theme (e.g., ocean, dark).
+
+Backend (.env) (only needed for API mode)
+- PORT, DATABASE_URL, CORS_ORIGIN, LOG_LEVEL, JWT_SECRET, JWT_EXPIRES_IN. See backend README for details.
+
+Database (.env)
+- POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, POSTGRES_PORT. See database README for details.
+
+## How to Switch Modes
+
+1) Copy `.env.sample` to `.env`.
+2) Set `REACT_APP_USE_MOCK=true` for mock mode or `false` for API mode.
+3) If using API mode, set `REACT_APP_API_URL` to the backend URL, and configure the backend `.env` from its `.env.sample`.
+4) Restart the dev server or preview to pick up changes.
+
+## Seeded Sample Data
+
+Seed files under `src/mock/data/*.json` provide deterministic demo accounts, categories, budgets, goals, transactions, and computed reports. The mock API (`src/mock/api.js`) composes reports such as spending-by-category and income-vs-expense from these files.
 
 ## Getting Started
 
-In the project directory, you can run:
+Development server:
+- `npm install`
+- `npm start`
+- Open http://localhost:3000
 
-### `npm start`
+Tests:
+- `npm test`
 
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Production build:
+- `npm run build`
 
-### `npm test`
+## Notes
 
-Launches the test runner in interactive watch mode.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-## Customization
-
-### Colors
-
-The main brand colors are defined as CSS variables in `src/App.css`:
-
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
-```
-
-### Components
-
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
-
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
-
-## Learn More
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- When in mock mode, the backend is not required and no authentication UI is enforced.
+- In API mode, ensure CORS_ORIGIN on the backend matches the frontend origin exactly.
