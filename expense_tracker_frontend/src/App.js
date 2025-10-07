@@ -1,48 +1,58 @@
-import React, { useState, useEffect } from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import './index.css';
 import './App.css';
+import RoutesView from './routes';
+import Sidebar from './components/Sidebar';
+import TopNav from './components/TopNav';
 
-// PUBLIC_INTERFACE
+/**
+ * PUBLIC_INTERFACE
+ * App - Main application component that sets up theme and layout
+ * - Wraps the app in BrowserRouter and renders Sidebar, TopNav, and route content
+ */
 function App() {
   const [theme, setTheme] = useState('light');
 
-  // Effect to apply theme to document element
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
   }, [theme]);
 
   // PUBLIC_INTERFACE
-  const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
-  };
+  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <button 
-          className="theme-toggle" 
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-        >
-          {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-        </button>
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <p>
-          Current theme: <strong>{theme}</strong>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <BrowserRouter>
+      <div className="App layout">
+        <aside className="sidebar">
+          <div className="sidebar-inner">
+            <div className="sidebar-brand">💠 OceanTrack</div>
+            <nav className="sidebar-nav">
+              <Sidebar />
+            </nav>
+            <div className="sidebar-footer">v0.1 • Professional</div>
+          </div>
+        </aside>
+
+        <header className="topnav">
+          <div className="topnav-inner">
+            <div style={{ display: 'flex', gap: 8 }}>
+              <span className="badge">Secure</span>
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="btn btn-secondary" onClick={toggleTheme} aria-label="Toggle theme">
+                {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
+              </button>
+              <TopNav />
+            </div>
+          </div>
+        </header>
+
+        <main className="main">
+          <RoutesView />
+        </main>
+      </div>
+    </BrowserRouter>
   );
 }
 
