@@ -1,80 +1,41 @@
-import { useEffect, useMemo, useState } from 'react';
-import { getApi } from '../api/client';
+import { useCallback, useEffect, useState } from 'react';
+import { apiGet, apiPost } from '../api/client';
 
 /**
  * PUBLIC_INTERFACE
- * useAlerts - fetches alerts if available; otherwise computes basic budget overrun alerts client-side.
- * Accepts optional inputs for spendingByCategory and budgets to compute overruns.
+ * useAlerts - manages budget/goal alert feed, with graceful mock support via client
  */
-export default function useAlerts({ spendingByCategory = [], budgets = [] } = {}) {
-  const api = useMemo(() => getApi(), []);
+export default function useAlerts() {
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+
+  const fetchAlerts = useCallback(async (signal) => {
+    setLoading(true);
+    try {
+      const { data } = await apiGet('/reports/alerts', { signal });
+      setAlerts(Array.isArray(data) ? data : []);
+    } catch {
+      // keep alerts as-is on error
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
-    (async () => {
-      try {
-        setLoading(true);
-        setError('');
-        // Prefer backend reports alerts if implemented
-        const res = await api.get('/reports/alerts', { signal: controller.signal });
-        const list = Array.isArray(res.data) ? res.data : [];
-        if (list.length) {
-          setAlerts(list);
-        } else {
-          // Compute client-side overruns as fallback
-          const computed = computeOverruns(spendingByCategory, budgets);
-          setAlerts(computed);
-        }
-      } catch (e) {
-        if (e?.name !== 'CanceledError' && e?.name !== 'AbortError') {
-          // Fall back to client-side computation on error
-          const computed = computeOverruns(spendingByCategory, budgets);
-          setAlerts(computed);
-          setError('Alerts service not available. Using local computation.');
-        }
-      } finally {
-        setLoading(false);
-      }
-    })();
+    fetchAlerts(controller.signal);
     return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [api, JSON.stringify(spendingByCategory), JSON.stringify(budgets)]);
+  }, [fetchAlerts]);
 
-  return { alerts, loading, error, isMock: api.isMock };
-}
-
-function computeOverruns(spendingByCategory, budgets) {
-  if (!spendingByCategory?.length || !budgets?.length) return [];
-  const byName = new Map(spendingByCategory.map((c) => [c.categoryName, c.total]));
-  const alerts = [];
-  for (const b of budgets) {
-    // budgets in existing UI are mock-shaped; support both shapes
-    const name = b.categoryName || b.category || b.name || '';
-    const limit = Number(b.limit_amount || b.limit || 0);
-    const spent = Number(b.spent ?? byName.get(name) ?? 0);
-    if (limit > 0 && spent > limit) {
-      const over = Math.round((spent - limit) * 100) / 100;
-      alerts.push({
-        type: 'BUDGET_OVERRUN',
-        message: `${name} exceeded by $${over}`,
-        severity: 'error',
-        categoryName: name,
-        spent,
-        limit
-      });
-    } else if (limit > 0 && spent > 0 && spent > limit * 0.9) {
-      alerts.push({
-        type: 'BUDGET_NEAR_LIMIT',
-        message: `${name} at ${Math.round((spent / limit) * 100)}% of budget`,
-        severity: 'warning',
-        categoryName: name,
-        spent,
-        limit
-      });
+  // Example of acknowledging alert if backend supports it
+  const acknowledge = useCallback(async (id) => {
+    try {
+      await apiPost(`/alerts/${id}/ack`);
+      setAlerts((arr) => arr.filter((a) => a.id !== id));
+    } catch {
+      // ignore
     }
-  }
-  return alerts;
+  }, []);
+
+  return { alerts, loading, refresh: fetchAlerts, acknowledge };
 }

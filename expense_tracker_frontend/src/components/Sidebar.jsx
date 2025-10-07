@@ -3,18 +3,18 @@ import { NavLink } from 'react-router-dom';
 
 /**
  * PUBLIC_INTERFACE
- * Sidebar - left navigation with links to main routes
+ * Sidebar - left navigation with active state styling
  */
 export default function Sidebar() {
-  const linkClass = ({ isActive }) => `nav-link ${isActive ? 'active' : ''}`;
+  const activeClass = ({ isActive }) => (isActive ? 'nav-link active' : 'nav-link');
   return (
     <div style={{ display: 'grid', gap: 6 }}>
-      <NavLink className={linkClass} to="/dashboard">🏠 Dashboard</NavLink>
-      <NavLink className={linkClass} to="/transactions">💳 Transactions</NavLink>
-      <NavLink className={linkClass} to="/budgets">📊 Budgets</NavLink>
-      <NavLink className={linkClass} to="/goals">🎯 Goals</NavLink>
-      <NavLink className={linkClass} to="/reports">📈 Reports</NavLink>
-      <NavLink className={linkClass} to="/settings">⚙️ Settings</NavLink>
+      <NavLink to="/dashboard" end className={activeClass}>🏠 Dashboard</NavLink>
+      <NavLink to="/transactions" className={activeClass}>💳 Transactions</NavLink>
+      <NavLink to="/budgets" className={activeClass}>📊 Budgets</NavLink>
+      <NavLink to="/goals" className={activeClass}>🎯 Goals</NavLink>
+      <NavLink to="/reports" className={activeClass}>📈 Reports</NavLink>
+      <NavLink to="/settings" className={activeClass}>⚙️ Settings</NavLink>
     </div>
   );
 }

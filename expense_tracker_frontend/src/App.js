@@ -1,58 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import './index.css';
 import './App.css';
-import RoutesView from './routes';
 import Sidebar from './components/Sidebar';
 import TopNav from './components/TopNav';
+import AppRoutes from './routes';
+import { AuthProvider } from './context/AuthContext';
+
+function HealthBadge() {
+  const [status, setStatus] = useState('checking');
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+  useEffect(() => {
+    let abort = false;
+    const controller = new AbortController();
+    async function check() {
+      if (!apiUrl) {
+        setStatus('mock');
+        return;
+      }
+      try {
+        const res = await fetch(`${apiUrl}/health`, { signal: controller.signal });
+        if (!abort) setStatus(res.ok ? 'ok' : 'down');
+      } catch {
+        if (!abort) setStatus('down');
+      }
+    }
+    check();
+    return () => {
+      abort = true;
+      controller.abort();
+    };
+  }, [apiUrl]);
+
+  const label =
+    status === 'mock' ? 'Mock mode' : status === 'ok' ? 'API OK' : status === 'down' ? 'API Down' : 'Checking';
+
+  const dotColor =
+    status === 'ok' ? '#10b981' : status === 'down' ? '#ef4444' : status === 'mock' ? '#f59e0b' : '#6b7280';
+
+  return (
+    <div className="health-badge" title={apiUrl ? apiUrl : 'Mock mode'}>
+      <span style={{ width: 8, height: 8, borderRadius: 999, background: dotColor, display: 'inline-block' }} />
+      <span style={{ fontSize: 12 }}>{label}</span>
+    </div>
+  );
+}
 
 /**
  * PUBLIC_INTERFACE
- * App - Main application component that sets up theme and layout
- * - Wraps the app in BrowserRouter and renders Sidebar, TopNav, and route content
+ * App - Main application component
  */
 function App() {
-  const [theme, setTheme] = useState('light');
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  // PUBLIC_INTERFACE
-  const toggleTheme = () => setTheme(t => (t === 'light' ? 'dark' : 'light'));
-
   return (
-    <BrowserRouter>
-      <div className="App layout">
-        <aside className="sidebar">
-          <div className="sidebar-inner">
-            <div className="sidebar-brand">💠 OceanTrack</div>
-            <nav className="sidebar-nav">
+    <div className="App">
+      <AuthProvider>
+        <Router>
+          <div className="topnav">
+            <TopNav />
+          </div>
+          <div style={{ display: 'flex', minHeight: 'calc(100vh - 64px)' }}>
+            <aside className="sidebar">
               <Sidebar />
-            </nav>
-            <div className="sidebar-footer">v0.1 • Professional</div>
+            </aside>
+            <main style={{ flex: 1, padding: 16, display: 'grid', gap: 12 }}>
+              <HealthBadge />
+              <AppRoutes />
+            </main>
           </div>
-        </aside>
-
-        <header className="topnav">
-          <div className="topnav-inner">
-            <div className="gap-2" style={{ display: 'flex' }}>
-              <span className="badge">Secure</span>
-            </div>
-            <div className="gap-2" style={{ display: 'flex' }}>
-              <button className="btn btn-secondary" onClick={toggleTheme} aria-label="Toggle theme">
-                {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-              </button>
-              <TopNav />
-            </div>
-          </div>
-        </header>
-
-        <main className="main">
-          <RoutesView />
-        </main>
-      </div>
-    </BrowserRouter>
+        </Router>
+      </AuthProvider>
+    </div>
   );
 }
 

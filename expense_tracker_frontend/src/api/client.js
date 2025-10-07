@@ -1,124 +1,135 @@
+ /**
+ * Axios API client with JWT auth, 401 handling, and in-memory token cache.
+ * Falls back to mock mode if REACT_APP_API_URL is not set.
+ */
 import axios from 'axios';
 
-const BASE_URL = (process.env.REACT_APP_API_URL || '').trim();
-const USE_MOCK = !BASE_URL;
+// In-memory token cache synchronized with localStorage
+let tokenCache = null;
+const TOKEN_KEY = 'auth_token';
 
-// Create axios instance only if we have a BASE_URL
-const http = BASE_URL
+// Load cached token from localStorage on module import
+try {
+  const stored = localStorage.getItem(TOKEN_KEY);
+  if (stored) tokenCache = stored;
+} catch {
+  // ignore SSR or storage errors
+}
+
+// PUBLIC_INTERFACE
+export function setAuthToken(token) {
+  /** Set and persist JWT token */
+  tokenCache = token || null;
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch {
+    // ignore
+  }
+}
+
+// PUBLIC_INTERFACE
+export function getAuthToken() {
+  /** Get JWT token from memory cache (fast path), synced with localStorage */
+  if (!tokenCache) {
+    try {
+      tokenCache = localStorage.getItem(TOKEN_KEY);
+    } catch {
+      // ignore
+    }
+  }
+  return tokenCache;
+}
+
+// PUBLIC_INTERFACE
+export function clearAuthToken() {
+  /** Clear JWT token from memory and storage */
+  tokenCache = null;
+  try {
+    localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // ignore
+  }
+}
+
+// PUBLIC_INTERFACE
+export function isApiEnabled() {
+  /** Returns true if backend API URL is configured, otherwise mock mode */
+  return Boolean(process.env.REACT_APP_API_URL);
+}
+
+const baseURL = process.env.REACT_APP_API_URL || undefined;
+
+// Create axios instance if API is enabled; otherwise export a stub for mock mode usage
+export const http = baseURL
   ? axios.create({
-      baseURL: BASE_URL,
-      timeout: 10000,
-      headers: { 'Content-Type': 'application/json' }
+      baseURL,
+      timeout: 15000,
     })
   : null;
 
-/**
- * PUBLIC_INTERFACE
- * getApi - returns a simple API interface with get/post/put/delete.
- * Falls back to mock responses if REACT_APP_API_URL is not set.
- */
-export function getApi() {
-  if (USE_MOCK) {
-    // Minimal mock for initial, backend-not-ready state
-    const delay = (ms) => new Promise((r) => setTimeout(r, ms));
-    return {
-      /** Mocked GET */
-      async get(path) {
-        await delay(150);
-        if (path.includes('/health')) {
-          return { data: { status: 'ok' } };
-        }
-        if (path.includes('/transactions')) {
-          return { data: [{ id: 't1', amount: 42.5, category: 'Food & Dining', date: '2025-03-12' }] };
-        }
-        if (path.includes('/budgets')) {
-          return { data: [{ id: 'b1', category: 'Food & Dining', limit: 350, spent: 320 }] };
-        }
-        if (path.includes('/goals')) {
-          return { data: [{ id: 'g1', name: 'Emergency Fund', target: 5000, progress: 1500 }] };
-        }
-        if (path.includes('/reports/spending-by-category')) {
-          return {
-            data: [
-              { categoryName: 'Food & Dining', total: 180.25, currency: 'USD' },
-              { categoryName: 'Groceries', total: 240.10, currency: 'USD' },
-              { categoryName: 'Transport', total: 65.80, currency: 'USD' }
-            ]
-          };
-        }
-        if (path.includes('/reports/income-vs-expense')) {
-          return {
-            data: [
-              { period: '2025-01', income: 5500, expense: 3200, net: 2300 },
-              { period: '2025-02', income: 5500, expense: 3100, net: 2400 },
-              { period: '2025-03', income: 5500, expense: 3450, net: 2050 }
-            ]
-          };
-        }
-        if (path.includes('/reports/alerts')) {
-          return { data: [] };
-        }
-        if (path.includes('/categories')) {
-          return {
-            data: [
-              { id: 'food', user_id: null, name: 'Food & Dining', type: 'expense', icon: '🍽️', is_default: true },
-              { id: 'groceries', user_id: null, name: 'Groceries', type: 'expense', icon: '🛒', is_default: true },
-              { id: 'transport', user_id: null, name: 'Transport', type: 'expense', icon: '🚌', is_default: true }
-            ]
-          };
-        }
-        return { data: [] };
-      },
-      /** Mocked POST */
-      async post(_path, body) {
-        await delay(120);
-        return { data: { ...body, id: Math.random().toString(36).slice(2) } };
-      },
-      /** Mocked PUT */
-      async put(_path, body) {
-        await delay(120);
-        return { data: body };
-      },
-      /** Mocked DELETE */
-      async delete(_path) {
-        await delay(120);
-        return { data: { ok: true } };
-      },
-      isMock: true,
-      baseURL: ''
-    };
-  }
+// Attach interceptors only if we have a real client
+if (http) {
+  // Request: attach Authorization header if token exists
+  http.interceptors.request.use((config) => {
+    const token = getAuthToken();
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
 
-  return {
-    async get(path, config) {
-      const res = await http.get(path, config);
-      return res;
-    },
-    async post(path, data, config) {
-      const res = await http.post(path, data, config);
-      return res;
-    },
-    async put(path, data, config) {
-      const res = await http.put(path, data, config);
-      return res;
-    },
-    async delete(path, config) {
-      const res = await http.delete(path, config);
-      return res;
-    },
-    isMock: false,
-    baseURL: BASE_URL
-  };
+  // Response: handle 401 by clearing token and redirecting to /login
+  http.interceptors.response.use(
+    (response) => response,
+    (error) => {
+      const status = error?.response?.status;
+      if (status === 401) {
+        clearAuthToken();
+        try {
+          if (window.location.pathname !== '/login') {
+            window.location.replace('/login');
+          }
+        } catch {
+          // ignore
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
 }
 
-/**
- * PUBLIC_INTERFACE
- * endpoints - common endpoint paths to keep usage consistent.
- */
-export const endpoints = {
-  transactions: '/transactions',
-  budgets: '/budgets',
-  goals: '/goals',
-  reports: '/reports',
-  settings: '/settings'
-};
+// Helper wrappers to allow a unified API for mock vs real modes
+// PUBLIC_INTERFACE
+export async function apiGet(path, config = {}) {
+  /** Perform GET request via axios if API is enabled; mock mode returns placeholder. */
+  if (!http) {
+    return { data: null, status: 200, mock: true };
+  }
+  const res = await http.get(path, config);
+  return { data: res.data, status: res.status };
+}
+
+// PUBLIC_INTERFACE
+export async function apiPost(path, body = {}, config = {}) {
+  /** Perform POST request via axios if API is enabled; mock mode returns placeholder. */
+  if (!http) {
+    return { data: null, status: 200, mock: true };
+  }
+  const res = await http.post(path, body, config);
+  return { data: res.data, status: res.status };
+}
+
+// PUBLIC_INTERFACE
+export async function apiPut(path, body = {}, config = {}) {
+  /** Perform PUT request via axios if API is enabled; mock mode returns placeholder. */
+  if (!http) {
+    return { data: null, status: 200, mock: true };
+  }
+  const res = await http.put(path, body, config);
+  return { data: res.data, status: res.status };
+}
