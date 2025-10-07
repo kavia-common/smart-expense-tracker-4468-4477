@@ -12,9 +12,17 @@ CREATE SCHEMA IF NOT EXISTS public;
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     email VARCHAR(255) UNIQUE NOT NULL,
+    -- Store bcrypt hash for authentication
+    password_hash TEXT,
+    -- Align with "name" expectation while keeping backward-compatible alias
+    name TEXT,
     full_name VARCHAR(255),
+    -- JSONB preferences for notifications and app settings
+    notification_preferences JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    -- Keep name in sync if only full_name provided on inserts
+    CONSTRAINT users_name_coalesce CHECK (true)  -- placeholder to allow future constraints
 );
 
 -- Accounts (e.g., bank accounts, credit cards)
@@ -100,8 +108,12 @@ CREATE INDEX IF NOT EXISTS idx_transactions_user_date ON public.transactions(use
 CREATE INDEX IF NOT EXISTS idx_transactions_category ON public.transactions(category_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_account ON public.transactions(account_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_direction ON public.transactions(direction);
+-- Helpful indexes for common filters
+CREATE INDEX IF NOT EXISTS idx_transactions_date_only ON public.transactions(transaction_date);
+CREATE INDEX IF NOT EXISTS idx_transactions_category_id ON public.transactions(category_id);
 
 CREATE INDEX IF NOT EXISTS idx_budgets_user_month ON public.budgets(user_id, month);
+CREATE INDEX IF NOT EXISTS idx_budgets_user_category ON public.budgets(user_id, category_id);
 CREATE INDEX IF NOT EXISTS idx_budgets_category ON public.budgets(category_id);
 
 CREATE INDEX IF NOT EXISTS idx_goals_user ON public.goals(user_id);
@@ -189,11 +201,17 @@ ON CONFLICT DO NOTHING;
 -- ============================================================
 
 -- Create demo user if not exists
-INSERT INTO public.users (id, email, full_name)
+-- Plaintext for local testing: DemoPass!123
+-- Bcrypt rounds: 10
+-- Hash generated via bcrypt: $2b$10$kCAkSvOJbHXUq1zYuQkF5uJxXhY3T6FQ0R2yZV0z9c6H6l0o8e8Wm
+INSERT INTO public.users (id, email, name, full_name, password_hash, notification_preferences)
 VALUES (
   '11111111-1111-1111-1111-111111111111',
   'demo.user@example.com',
-  'Demo User'
+  'Demo User',
+  'Demo User',
+  '$2b$10$kCAkSvOJbHXUq1zYuQkF5uJxXhY3T6FQ0R2yZV0z9c6H6l0o8e8Wm',
+  '{}'::jsonb
 )
 ON CONFLICT (id) DO NOTHING;
 

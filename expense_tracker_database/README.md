@@ -22,7 +22,10 @@ POSTGRES_PASSWORD=secure_password
 POSTGRES_PORT=5432
 ```
 
-Note: Do not commit real secrets. The orchestration layer will map these environment variables in deployment.
+Note:
+- Do not commit real secrets. The orchestration layer will map these environment variables in deployment.
+- These variables are read by the official Postgres image to create the initial database and role on first run.
+- The init SQL is applied automatically from `/docker-entrypoint-initdb.d/` only on first initialization of the data directory.
 
 ## Usage
 
@@ -56,6 +59,24 @@ Connect (psql):
 docker exec -it expense-tracker-db psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
 ```
 
+## Authentication Schema Notes
+
+The `users` table includes:
+- id (UUID, primary key)
+- email (unique, indexed)
+- password_hash (bcrypt string, TEXT)
+- name (TEXT), full_name (legacy/alias)
+- notification_preferences (JSONB, default `{}`)
+- created_at / updated_at (timestamps with defaults, with an update trigger)
+
+Helpful indexes included:
+- users(email) unique + idx
+- transactions(date), transactions(category_id)
+- budgets(user_id, category_id), budgets(user_id, month)
+- goals(user_id)
+
+A demo user is seeded during init for local development only.
+
 ## Seed Data Details
 
 The init script creates a realistic demo dataset:
@@ -80,6 +101,19 @@ The init script creates a realistic demo dataset:
   - "Emergency Fund" target $5000, current $1500, target date in ~6 months
 
 These can support reports such as spending-by-category, income-vs-expense, and budgets overview.
+
+## Demo Credentials (Local Only)
+
+A demo user is created for local testing:
+- Email: demo.user@example.com
+- Password: DemoPass!123
+
+Security note:
+- The plaintext password is provided only for local development convenience.
+- In production, remove demo data or ensure it is never seeded.
+
+Optional demo account:
+- An "Everyday Checking" account is created for the demo user to simplify first-run UX.
 
 ## Schema Overview
 
