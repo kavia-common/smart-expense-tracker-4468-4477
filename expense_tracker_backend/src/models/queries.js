@@ -43,3 +43,13 @@ export function buildTransactionFilters({ accountId, from, to, category }) {
   const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
   return { where, params };
 }
+
+// PUBLIC_INTERFACE
+/**
+ * buildReportPagination - lightweight helper mirrored from buildPagination but accepting primitives
+ */
+export function buildReportPagination(limit, offset) {
+  const l = Math.max(1, Math.min(Number(limit) || 50, 200));
+  const o = Math.max(0, Number(offset) || 0);
+  return { limit: l, offset: o };
+}

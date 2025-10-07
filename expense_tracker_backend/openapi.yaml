@@ -218,23 +218,82 @@ paths:
   /reports/spending-by-category:
     get:
       tags: [Reports]
-      summary: Spending by category for current period
+      summary: Spending by category for period
+      description: |
+        Returns total outflows grouped by expense categories for a given period.
+        Default period is current month when no query is provided.
       parameters:
         - in: query
           name: range
-          schema: { type: string, enum: [week, month, year], default: month }
+          description: Period preset. If from/to are provided, they override range.
+          schema:
+            type: string
+            enum: [month, quarter]
+            default: month
+        - in: query
+          name: from
+          description: Inclusive start date (YYYY-MM-DD)
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          description: Inclusive end date (YYYY-MM-DD)
+          schema: { type: string, format: date }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
       responses:
-        "200": { description: Report data }
+        "200":
+          description: List of categories with totals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    categoryName: { type: string, example: "Food & Dining" }
+                    total: { type: number, example: 245.75 }
+                    currency: { type: string, example: "USD" }
   /reports/income-vs-expense:
     get:
       tags: [Reports]
-      summary: Income vs Expense for current period
+      summary: Income vs Expense by month for period
+      description: |
+        Returns monthly totals for income vs expense for the selected period.
+        Default period is current month. For quarter, last 3 months rolling.
       parameters:
         - in: query
           name: range
-          schema: { type: string, enum: [week, month, year], default: month }
+          description: Period preset. If from/to are provided, they override range.
+          schema:
+            type: string
+            enum: [month, quarter]
+            default: month
+        - in: query
+          name: from
+          description: Inclusive start date (YYYY-MM-DD)
+          schema: { type: string, format: date }
+        - in: query
+          name: to
+          description: Inclusive end date (YYYY-MM-DD)
+          schema: { type: string, format: date }
       responses:
-        "200": { description: Report data }
+        "200":
+          description: Periodized income vs expense list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    period: { type: string, example: "2025-03" }
+                    income: { type: number, example: 5500.00 }
+                    expense: { type: number, example: 3240.25 }
+                    net: { type: number, example: 2259.75 }
   /reports/alerts:
     get:
       tags: [Reports]

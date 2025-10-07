@@ -56,10 +56,12 @@ jest.unstable_mockModule('../src/db/pg.js', () => {
       }
       // reports
       if (sql.includes('FROM public.categories')) {
-        return { rows: [{ category: 'Food & Dining', total: 0 }] };
+        return { rows: [{ categoryName: 'Food & Dining', total: 123.45, currency: 'USD' }] };
       }
-      if (sql.includes('Income vs Expense')) {
-        return { rows: [{ income: 0, expense: 0 }] };
+      if (sql.includes('GROUP BY 1') && sql.includes("to_char(date_trunc('month'"))) {
+        return { rows: [
+          { period: '2025-01', income: 5500, expense: 3200, net: 2300 }
+        ] };
       }
       return { rows: [] };
     })
@@ -136,14 +138,47 @@ describe('Budgets and Goals endpoints responses', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  it('GET /reports/spending-by-category -> 200', async () => {
+  it('GET /reports/spending-by-category -> 200 and items', async () => {
     const res = await request(app).get('/reports/spending-by-category');
+    expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    if (res.body[0]) {
+      expect(res.body[0]).toHaveProperty('categoryName');
+      expect(res.body[0]).toHaveProperty('total');
+      expect(res.body[0]).toHaveProperty('currency');
+    }
+  });
+
+  it('GET /reports/spending-by-category with quarter range and pagination -> 200', async () => {
+    const res = await request(app).get('/reports/spending-by-category?range=quarter&limit=10&offset=0');
     expect(res.statusCode).toBe(200);
   });
 
-  it('GET /reports/income-vs-expense -> 200', async () => {
+  it('GET /reports/spending-by-category invalid range -> 400', async () => {
+    const res = await request(app).get('/reports/spending-by-category?range=year');
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('GET /reports/income-vs-expense -> 200 and list', async () => {
     const res = await request(app).get('/reports/income-vs-expense');
     expect(res.statusCode).toBe(200);
+    expect(Array.isArray(res.body)).toBe(true);
+    if (res.body[0]) {
+      expect(res.body[0]).toHaveProperty('period');
+      expect(res.body[0]).toHaveProperty('income');
+      expect(res.body[0]).toHaveProperty('expense');
+      expect(res.body[0]).toHaveProperty('net');
+    }
+  });
+
+  it('GET /reports/income-vs-expense with from/to -> 200', async () => {
+    const res = await request(app).get('/reports/income-vs-expense?from=2025-01-01&to=2025-02-01');
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('GET /reports/income-vs-expense invalid range -> 400', async () => {
+    const res = await request(app).get('/reports/income-vs-expense?range=week');
+    expect(res.statusCode).toBe(400);
   });
 
   it('GET /reports/alerts -> 200 []', async () => {

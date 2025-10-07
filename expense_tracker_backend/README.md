@@ -43,7 +43,14 @@ API base: `http://localhost:${PORT}`
 - Transactions: `GET/POST /transactions`, `PUT/DELETE /transactions/:id`, `GET /transactions/summary`
 - Budgets: `GET/POST /budgets`, `PUT/DELETE /budgets/:id`
 - Goals: `GET/POST /goals`, `PUT/DELETE /goals/:id`
-- Reports: `GET /reports/spending-by-category`, `GET /reports/income-vs-expense`, `GET /reports/alerts`
+- Reports:
+  - `GET /reports/spending-by-category?range=month|quarter&from=&to=&limit=&offset=`
+    - Default range is `month` (current month). If `from`/`to` are provided (YYYY-MM-DD), they override `range`.
+    - Returns `[ { categoryName, total, currency } ]`
+  - `GET /reports/income-vs-expense?range=month|quarter&from=&to=`
+    - Default range is `month` (current month). For `quarter`, last 3 months rolling. `from`/`to` override.
+    - Returns `[ { period: YYYY-MM, income, expense, net } ]`
+  - `GET /reports/alerts`
 
 OpenAPI: `GET /openapi.yaml`
 
