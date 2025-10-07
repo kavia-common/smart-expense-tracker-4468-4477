@@ -11,6 +11,39 @@ Express service providing REST endpoints for transactions, budgets, goals, repor
 - OpenAPI spec at `/openapi.yaml`
 - Smoke tests with `jest` + `supertest` (DB access not required to pass)
 
+## Using with Mock Frontend (Backend Optional for Preview)
+
+The frontend ships with deterministic mock data and can run without this backend.
+
+- When the frontend environment variable `REACT_APP_USE_MOCK=1` (default), the UI uses an in-browser mock API and does not require the backend or database to be running.
+- In this mode, the health badge will show “Mock mode,” and all dashboards/reports use seeded mock data.
+- Existing auth endpoints remain available on the backend, but they are not required for the mock-driven UI.
+
+Optional unauthenticated preview:
+- No backend configuration is required to preview the app with mock data.
+- If you still run the backend, note that protected API routes still enforce authentication as usual; the frontend will simply not call them while mock mode is enabled.
+
+## Switching to API Mode (Connect Frontend to Backend)
+
+To connect the frontend to this backend instead of using mocks:
+
+Frontend (.env):
+- Set `REACT_APP_USE_MOCK=0`
+- Set `REACT_APP_API_URL=http://localhost:8080` (or your deployed backend URL)
+
+Backend (.env):
+- `PORT=8080` (or desired port)
+- `DATABASE_URL=postgresql://expenses_user:secure_password@expense_tracker_database:5432/expenses` (configure for your environment)
+- `CORS_ORIGIN=http://localhost:3000` (set to the exact frontend origin)
+- `LOG_LEVEL=info`
+- `JWT_SECRET=<request from orchestrator>` (required for auth-protected endpoints)
+- Optional: `JWT_EXPIRES_IN=1h`
+
+Notes:
+- In API mode, the frontend will call the backend and authentication is required for protected endpoints.
+- Ensure your database is running and reachable using `DATABASE_URL`.
+- CORS must be set to the exact frontend origin for browser requests to succeed.
+
 ## Environment
 
 Copy `.env.sample` to `.env` and adjust as needed:
